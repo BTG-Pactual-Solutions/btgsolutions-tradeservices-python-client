@@ -3,15 +3,6 @@
 BTG solutions trade api package.
 
 
-## Install locally
-
-1. Clone repo to your local environment
-2. At package's root level run:
-
-```
-python3 -m pip install -e .
-```
-
 ## Usage
 
 Get your token and use it in the examples below.
