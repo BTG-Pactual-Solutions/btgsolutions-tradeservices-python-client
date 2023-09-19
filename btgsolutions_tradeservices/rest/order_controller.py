@@ -118,6 +118,7 @@ class TradeAPIRequester:
 
         if host is None:
             host = "https://api.uat.btgpactualsolutions.com"
+            print(f"WARNING: API host was not provided. Using default UAT host '{host}'")
         self.base_url = host + "/api/v1/order" # "https://api.uat.btgpactualsolutions.com/api/v1/order"
         self.headers = {
             "Authorization" : f"Bearer {token}"
