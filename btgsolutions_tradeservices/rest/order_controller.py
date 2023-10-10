@@ -214,6 +214,49 @@ class TradeAPIRequester:
         return r.json()
 
 class OrderController:
+    """
+    Instantiate an order controller. Provide your token, account number, execution broker and entity to start sending orders.
+
+    >>> from btgsolutions_tradeservices import OrderController
+
+    >>> controller = OrderController(
+    >>>     token="YOUR_TOKEN",
+    >>>     account="YOUR_ACCOUNT_NUMBER",
+    >>>     exec_broker="YOUR_EXEC_BROKER",
+    >>>     entity="YOUR_ENTITY",
+    >>> )
+
+    One can provide a custom order update callback function.
+
+    >>> def order_update_callback(order):
+    >>>     print(f"Order update: {order}")
+
+    >>> controller = OrderController(
+    >>>     token="YOUR_TOKEN",
+    >>>     order_update_callback=order_update_callback,
+    >>> )
+
+    Parameters
+    ----------------
+    token: str
+        User token.
+        Field is required.
+    order_api_host: str
+        Order API host address. If not provided, default UAT host will be used.
+        Field is not required.
+    account: str
+        Account.
+        Field is not required.
+    execBroker: str
+        Execution broker.
+        Field is not required.
+    entity: str
+        Associated entity.
+        Field is not required.
+    order_update_callback: Callable
+        Order update callback function. If not provided, a generic callback function will be used.
+        Field is not required.
+    """
     def __init__(self, token:str, order_api_host:str=None, account:str=None, execBroker:str=None, entity:str=None, order_update_callback=None):
 
         if order_update_callback is None:
@@ -235,6 +278,55 @@ class OrderController:
         self.daemon.start()
 
     def create_order(self, symbol:str, side:str, qty:str, timeInForce:str, isDMA:str, price:str=None, stopPx:str=None, ordType:str=None, account:str=None, execBroker:str=None, entity:str=None):
+        """
+        Create new order
+
+        >>> orderId = controller.create_order(
+        >>>     symbol="PETR4",
+        >>>     side="S",
+        >>>     qty="5000",
+        >>>     price="20.41",
+        >>>     timeInForce="Day",
+        >>>     isDMA="true"
+        >>> )
+
+        Parameters
+        ----------------
+        symbol: str
+            Ticker symbol.
+            Field is required.
+        side: str
+            Side of transaction.
+            Allowed values: 'B', 'S'.
+            Field is required.
+        qty: str
+            Number of units to transact.
+            Field is required.
+        timeInForce: str
+            New order time in force (if applicable).
+            Field is required.
+        isDMA: str
+            is DMA.
+            Field is required.
+        price: str
+            New order price (if applicable).
+            Field is not required.
+        stopPx: str
+            New order stop price (if applicable).
+            Field is not required.
+        ordType: str
+            Order type.
+            Field is required.
+        account: str
+            Account.
+            Field is not required if it has already been provided at class instantiation.
+        execBroker: str
+            Execution broker.
+            Field is not required if it has already been provided at class instantiation.
+        entity: str
+            Associated entity.
+            Field is not required if it has already been provided at class instantiation.
+        """
 
         if account is None: account = self.account
         if execBroker is None: execBroker = self.execBroker 
@@ -255,6 +347,37 @@ class OrderController:
         )
     
     def change_order(self, id:str, qty:str, price:str=None, stopPx:str=None, timeInForce:str=None, ordType:str=None):
+        """
+        Change an order
+
+        >>> orderId = controller.create_order(
+        >>>     id="YOUR_ORDER_ID",
+        >>>     qty="5000",
+        >>>     price="20.43",
+        >>>     timeInForce="Day"
+        >>> )
+
+        Parameters
+        ----------------
+        id: str
+            Order id.
+            Field is required.
+        qty: str
+            New order quantity.
+            Field is required.
+        price: str
+            New order price (if applicable).
+            Field is not required.
+        stopPx: str
+            New order stop price (if applicable).
+            Field is not required.
+        timeInForce: str
+            New order time in force (if applicable).
+            Field is not required.
+        ordType: str
+            Order type.
+            Field is not required.
+        """
         id = id.split(':')[0]
         return self._t_api.update_order(
             id=id,
@@ -266,20 +389,67 @@ class OrderController:
         )
     
     def cancel_order(self, id:str):
+        """
+        Cancel an order
+
+        >>> orderId = controller.cancel_order(
+        >>>     id="YOUR_ORDER_ID",
+        >>> )
+
+        Parameters
+        ----------------
+        id: str
+            Order id.
+            Field is required.
+        """
         id = id.split(':')[0]
         return self._t_api.cancel_order(id)
 
     def cancel_all_orders(self,):
+        """
+        Cancel all orders
+
+        >>> controller.cancel_all_orders()
+        """
         return self._t_api.cancel_all_orders()
 
     def get_order(self, id:str):
+        """
+        Retrieve an order status
+
+        >>> orderStatus = controller.get_order(
+        >>>     id="YOUR_ORDER_ID",
+        >>> )
+
+        Parameters
+        ----------------
+        id: str
+            Order id.
+            Field is required.
+        """
         id = id.split(':')[0]
         return self._t_api.get_order(id)
 
     def get_orders(self):
+        """
+        Retrieve all order status
+
+        >>> controller.get_orders()
+        """
         return self._t_api.get_orders()
     
     def summary(self, detailed:bool=True):
+        """
+        Get a summary of all order status, in a Pandas DataFrame format.
+
+        >>> summary = controller.summary()
+
+        Parameters
+        ----------------
+        detailed: str
+            If 'True', returns all status info about an order. If 'False', returns a summarized version.
+            Field is not required.
+        """
         res = self.get_orders()
         df = pd.DataFrame(res)
         
