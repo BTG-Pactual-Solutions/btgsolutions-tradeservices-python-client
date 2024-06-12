@@ -22,7 +22,7 @@ description = "Python client package for trading within BTG Solutions platform."
 
 setup(
     name='btgsolutions-tradeservices-python-client',
-    version='0.1.4',
+    version='0.1.5',
     description=description,
     long_description=long_description,
     long_description_content_type='text/markdown',

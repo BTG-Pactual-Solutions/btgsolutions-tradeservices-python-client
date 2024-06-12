@@ -117,9 +117,11 @@ class TradeAPIRequester:
     def __init__(self, token:str, host:str=None):
 
         if host is None:
-            host = "https://api.uat.btgpactualsolutions.com"
-            print(f"WARNING: API host was not provided. Using default UAT host '{host}'")
-        self.base_url = host + "/api/v1/order" # "https://api.uat.btgpactualsolutions.com/api/v1/order"
+            host = "https://localhost"
+            print(f"WARNING: API host was not provided. Using default localhost host '{host}'")
+        self.base_url = host + "/api/v1/order"
+        self.base_url_v2 = host + "/api/v2/order"
+        self.trade_url_v2 = host + "/api/v2/trade"
         self.headers = {
             "Authorization" : f"Bearer {token}"
         }
@@ -185,7 +187,7 @@ class TradeAPIRequester:
 
     # cancelar todas as ordens
     def cancel_all_orders(self):
-        r = requests.delete(self.base_url + "/myorders", headers=self.headers)
+        r = requests.delete(self.base_url_v2 + "/myorders", headers=self.headers)
 
         if r.status_code not in [200, 202, 204]:
             print(f"{r.status_code} - {r.text}")
@@ -212,6 +214,16 @@ class TradeAPIRequester:
             raise Exception("Endpoint did not return expected response")
 
         return r.json()
+    
+    # consultar todas as ordens
+    def get_trades(self):
+        r = requests.get(self.trade_url_v2, headers=self.headers)
+
+        if r.status_code not in [200, 202]:
+            print(f"{r.status_code} - {r.text}")
+
+        return r.json()
+    
 
 class OrderController:
     """
@@ -456,3 +468,11 @@ class OrderController:
         if detailed is True:
             return df
         return df[df.columns[df.columns.isin(self.key_columns)]]
+
+    def get_trades(self):
+        """
+        Retrieve all trades
+
+        >>> controller.get_trades()
+        """
+        return self._t_api.get_trades()
